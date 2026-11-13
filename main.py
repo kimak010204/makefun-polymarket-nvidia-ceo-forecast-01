@@ -22,8 +22,11 @@ Method (tuned and validated on the six practice cases, local backtest):
 
 Local backtest on the six practice cases (actuals fetched from Polymarket's
 public price history, official pinball loss):
-  house baseline 0.363589 | this program 0.283753 (beats baseline on all
+  house baseline 0.363589 | this program 0.285119 (beats baseline on all
   six cases; median error and 90% coverage also reported in BUILD_LOG.md).
+  (The 0.283753 figure in BUILD_LOG.md is the same model evaluated inside
+  the research harness; the shipped program differs only in scale-then-
+  clamp ordering and scores 0.285119.)
 
 Usage (local): mkdir -p out && MAKEFUN_INPUT_DIR=input MAKEFUN_OUTPUT_DIR=out python3 main.py
 In the grader: python3 /bot/main.py reads /input, writes /output.
@@ -139,6 +142,7 @@ def _cond_vol_factor(prices):
 
 def forecast_market(prices, horizon):
     """Forecast rows (horizon x 5 quantiles) for one market's price list."""
+    prices = [p for p in prices if math.isfinite(p)]
     if not prices:
         return [[0.5, 0.5, 0.5, 0.5, 0.5] for _ in range(horizon)]
     x = prices[-1]
